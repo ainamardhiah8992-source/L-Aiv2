@@ -388,22 +388,13 @@
         });
     }
 
-    // 🎙️ 5. SPEECH-TO-TEXT VOICE ENGINE (MALAYSIAN ENGLISH PROFILE)
-    let voiceRecognition;
+// 🎙️ 5. SPEECH-TO-TEXT VOICE ENGINE (MALAYSIAN ENGLISH PROFILE)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let voiceRecognition = SpeechRecognition ? new SpeechRecognition() : null;
     let isVoiceListening = false;
 
-    function triggerLiveVoiceBuddy() {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        alert("❌ Your browser doesn't support voice typing. Please try using Google Chrome!");
-        return;
-      }
-      if (isVoiceListening) {
-        voiceRecognition.stop();
-        return;
-      }
-
-      voiceRecognition = new SpeechRecognition();
+    // Initialize the setup immediately on page load so mobile doesn't block it
+    if (voiceRecognition) {
       voiceRecognition.lang = 'en-MY'; 
       voiceRecognition.interimResults = false;
       voiceRecognition.maxAlternatives = 1;
@@ -424,6 +415,9 @@
       };
 
       voiceRecognition.onerror = function(event) {
+        // 📢 Mobile diagnostic alert
+        alert("Phone Mic Status: " + event.error);
+        
         if (event.error === 'no-speech') {
           alert("🤖 L-Ai couldn't hear anything. Speak a bit louder!");
         } else if (event.error === 'not-allowed') {
@@ -435,8 +429,20 @@
         isVoiceListening = false;
         document.title = "L-Ai Teacher App";
       };
+    }
 
-      voiceRecognition.start();
+    // This function now runs instantly with zero delay when clicked
+    function triggerLiveVoiceBuddy() {
+      if (!voiceRecognition) {
+        alert("❌ Your browser doesn't support voice typing. Please try using Google Chrome!");
+        return;
+      }
+
+      if (isVoiceListening) {
+        voiceRecognition.stop();
+      } else {
+        voiceRecognition.start();
+      }
     }
 
  // 🧠 6. MAIN CHAT SYSTEM FOR SUBMITTING SPEECH DATA TO GEMINI
@@ -551,31 +557,7 @@ function saveProgressToDB(xpToAdd) {
     level: window.currentLevel 
   });
 }
-function handleLogout() {
-  // 📢 Temporary test alert to make sure the button is working!
-  alert("Logout button clicked! Attempting to sync with spreadsheet...");
 
-  // If no one is logged in, just refresh to go to the login screen
-  if (!window.currentStudentId) {
-    location.reload();
-    return;
-  }
-
-  // Force one final update to the Google Sheet
-  callBackend("saveStudentData", { 
-    studentId: window.currentStudentId, 
-    xp: window.currentXp || 0, 
-    level: window.currentLevel || "Speech Explorer 🧭" 
-  })
-  .then(() => {
-    alert("Progress saved successfully! Resetting screen...");
-    location.reload(); 
-  })
-  .catch(err => {
-    alert("Could not connect to database, but logging out anyway.");
-    location.reload();
-  });
-}
 function loadLearningCards() {
       const container = document.getElementById('learning-cards-log-container');
       if (!container) return;
