@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>L-Ai by Madam Aina</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* 🎨 CORE RESPONSIVE & MOBILE CHASSIS STYLES */
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka', sans-serif; }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: #eef2f7;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        box-sizing: border-box;
+    }
+
+    .app-container {
+        width: 100vw;
+        max-width: 430px; 
+        height: 94vh;
+        max-height: 850px;
+        background-color: #FFFDF5;
+        border-radius: 30px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        border: 8px solid #2b2d42; 
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .app-screen { 
+        display: none !important; 
+        width: 100%; 
+        height: 100%; 
+        flex-direction: column; 
+        background-color: #FFFDF5;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+    
+    .app-screen.active { 
+        display: flex !important; 
+    }
+
+    /* 💬 CHAT BUBBLES & TIPS */
+    .mascot-chat-header { display: flex; align-items: center; gap: 10px; margin: 12px 0 4px 0; width: 100%; }
+    .mascot-avatar-circle { width: 38px !important; height: 38px !important; border-radius: 50% !important; object-fit: cover !important; border: 2px solid #2ec4b6; }
+    .mascot-chat-name { font-weight: 600; font-size: 13px; color: #718096; }
+    
+    .chat-bubble {
+        max-width: 75%;
+        padding: 12px 16px;
+        border-radius: 18px;
+        font-size: 15px;
+        line-height: 1.4;
+        margin-bottom: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        word-wrap: break-word;
+        display: inline-block;
+    }
+
+    .bubble-buddy { background-color: #ffffff; color: #2d3748; border: 2px solid #e2e8f0; border-top-left-radius: 4px; align-self: flex-start; }
+    .bubble-student { background-color: #2ec4b6; color: white; border-top-right-radius: 4px; align-self: flex-end; margin-left: auto; }
+
+    .lai-tip-box {
+        background: #fffaf0;
+        border: 2px solid #feebc8;
+        border-left: 6px solid #dd6b20;
+        border-radius: 16px;
+        padding: 12px;
+        margin: 8px 0;
+        font-size: 14px;
+        width: 90%;
+        box-sizing: border-box;
+        align-self: flex-start;
+    }
+    .lai-tip-box h4 { margin: 0 0 4px 0; color: #dd6b20; }
+    .lai-tip-box p { margin: 0; color: #7b341e; }
+
+    /* 🎯 HUB CONTAINER STYLES */
+    .hub-container-fixed { display: flex !important; flex-direction: column !important; justify-content: space-between !important; align-items: center !important; height: 100% !important; width: 100% !important; padding: 20px !important; box-sizing: border-box !important; }
+    .hub-row-fixed { display: flex !important; width: 100% !important; gap: 12px !important; box-sizing: border-box !important; }
+    
+    .hub-btn-fixed {
+        flex: 1 !important;
+        min-width: 0 !important;
+        background: #ffffff !important;
+        border: 2px solid #e2e8f0 !important;
+        border-bottom: 5px solid #cbd5e0 !important;
+        border-radius: 18px !important;
+        padding: 12px 6px !important;
+        text-align: center !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-height: 75px !important;
+        box-sizing: border-box !important;
+    }
+    .hub-btn-fixed:active { transform: translateY(2px) !important; border-bottom-width: 2px !important; }
+    .hub-btn-fixed span { font-weight: 700 !important; font-size: 13px !important; color: #2b2d42 !important; line-height: 1.3 !important; word-break: break-word !important; }
+    
+    .hub-mascot-fixed { display: flex !important; justify-content: center !important; align-items: center !important; flex: 1 !important; width: 100% !important; margin: 10px 0 !important; }
+    .hub-mascot-fixed img { width: 100% !important; max-width: 150px !important; height: auto !important; object-fit: contain !important; }
+
+    /* MODULES & PROGRESS */
+    .module-row-card { background: white; padding: 15px; margin-bottom: 10px; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; font-weight: 600; }
+    .stats-clay-card { background: white; padding: 20px; border-radius: 20px; border: 2px solid #e2e8f0; width: 100%; }
+    .xp-progress-bar-bg { background: #e2e8f0; border-radius: 10px; height: 15px; width: 100%; margin: 12px 0; overflow: hidden; }
+    .xp-progress-bar-fill { background: #2ec4b6; height: 100%; width: 0%; transition: width 0.3s; }
+    .screen-header { display: flex; align-items: center; justify-content: space-between; padding: 15px; background: #fff; border-bottom: 2px solid #e2e8f0; }
+    .back-arrow-btn { background: none; border: none; font-weight: bold; cursor: pointer; font-size: 16px; color: #2b2d42; }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- 1. WELCOME SCREEN -->
+    <div id="screen-welcome" class="app-screen active">
+        <div class="welcome-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 20px;">
+            <img src="https://i.ibb.co/FkXMYq7x/Untitled-design-1-1.gif" alt="L-Ai Logo" style="width: 200px; max-height: 200px; object-fit: contain;">
+            <div style="margin: 20px 0; width: 100%; text-align: center;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Tell me your name!</label>
+                <input type="text" id="student-name-input" placeholder="Type your name..." autocomplete="off" style="width: 80%; padding: 12px; border-radius: 12px; border: 2px solid #e2e8f0; text-align: center; font-size: 16px;">
+            </div>
+            <button id="btn-start-adventure" onclick="handleLoginTransition()" style="padding: 12px 24px; background: #ff4757; color: white; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; font-size: 16px;">Let's Start Our Adventure!</button>
+            <footer style="position: absolute; bottom: 15px; font-size: 11px; color: #a0aec0;">@Copyright by Madam Aina</footer>
+        </div>
+    </div>
+
+    <!-- 2. MAIN HUB SCREEN -->
+    <div id="screen-hub" class="app-screen">
+        <div class="hub-container-fixed">
+            <div class="hub-row-fixed">
+                <div class="hub-btn-fixed" onclick="switchView('screen-progress')"><span>Show your progress!</span></div>
+                <div class="hub-btn-fixed" onclick="switchView('screen-chat')"><span>Talk to me!</span></div>
+            </div>
+            
+            <div class="hub-mascot-fixed">
+                <img src="https://i.ibb.co/FkXMYq7x/Untitled-design-1-1.gif" alt="L-Ai Mascot">
+            </div>
+
+            <div class="hub-row-fixed">
+                <div class="hub-btn-fixed" onclick="switchView('screen-modules')"><span>Learn with me!</span></div>
+                <div class="hub-btn-fixed" onclick="switchView('screen-cards'); loadLearningCards();"><span>Your Learning Cards!</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. AI CHAT ROOM -->
+    <div id="screen-chat" class="app-screen">
+        <div class="screen-header">
+            <button class="back-arrow-btn" onclick="exitChatRoom()">◀ Hub</button>
+            <h2 id="chat-screen-title" style="margin: 0; font-size: 18px;">Talk to me</h2>
+            <div style="width:50px;"></div>
+        </div>
+        <div id="chat-messages-container" style="flex: 1; overflow-y: auto; padding: 15px; background-color: #FFFDF5; width: 100%; display: flex; flex-direction: column; box-sizing: border-box;"></div>
+        <div class="chat-input-tray" style="display: flex; padding: 12px; background: #fff; border-top: 2px solid #e2e8f0; width: 100%; box-sizing: border-box; align-items: center;">
+            <button id="chat-mic-btn" onclick="triggerLiveVoiceBuddy()" style="padding: 10px; font-size: 20px; background: none; border: none; cursor: pointer;">🎙️</button>
+            <input type="text" id="chat-text-field" placeholder="Type your text here..." style="flex: 1; padding: 10px; margin: 0 8px; border: 1px solid #cbd5e0; border-radius: 12px; font-family: inherit;">
+            <button id="chat-send-btn" onclick="processTextChatSubmit()" style="padding: 10px; background: none; border: none; font-size: 18px; cursor: pointer; color: #2ec4b6;">➔</button>
+        </div>
+    </div>
+
+    <!-- 4. SYLLABUS MODULES LIST -->
+    <div id="screen-modules" class="app-screen">
+        <div class="screen-header">
+            <button class="back-arrow-btn" onclick="switchView('screen-hub')">◀ Hub</button>
+            <h2>Learn With Me!</h2>
+            <div style="width:50px;"></div>
+        </div>
+        <div class="modules-list-scroller" style="flex: 1; overflow-y: auto; padding: 15px;">
+            <div class="module-row-card" onclick="selectModuleItem(1)"><span>Module 1 : Welcome!</span></div>
+            <div class="module-row-card" onclick="selectModuleItem(2)"><span>Module 2 : Every day</span></div>
+            <div class="module-row-card" onclick="selectModuleItem(3)"><span>Module 3 : Right Now</span></div>
+            <div class="module-row-card" onclick="selectModuleItem(4)"><span>Module 4 : Year In, Year Out</span></div>
+            <div class="module-row-card" onclick="selectModuleItem(5)"><span>Module 5 : My New House</span></div>
+            <div class="module-row-card" onclick="selectModuleItem(6)"><span>Module 6 : Food, please!</span></div>
+            <div class="module-row-card" onclick="selectModuleItem(7)"><span>Module 7 : Out and About</span></div>
+            <div class="module-row-card" onclick="selectModuleItem(8)"><span>Module 8 : Where were you yesterday?</span></div>
+            <div class="module-row-card" onclick="selectModuleItem(9)"><span>Module 9 : On Holiday</span></div>
+            <div class="module-row-card" onclick="selectModuleItem(10)"><span>Module 10 : The world Around Us</span></div>
+        </div>
+    </div>
+
+    <!-- 5. PROGRESS TRACKER SCREEN -->
+    <div id="screen-progress" class="app-screen">
+        <div class="screen-header">
+            <button class="back-arrow-btn" onclick="switchView('screen-hub')">◀ Hub</button>
+            <h2>Show your progress!</h2>
+            <div style="width:50px;"></div>
+        </div>
+        <div class="placeholder-view-body" style="flex: 1; overflow-y: auto; padding: 20px;">
+            <div class="stats-clay-card">
+                <h3>🏆 Your Speech Quest Status</h3>
+                <div id="badge-container" style="font-size: 50px; text-align: center; margin: 15px 0;">🧭</div>
+                <p style="font-size:18px; text-align:center; margin-bottom:10px;">
+                    Current Rank: <br><strong id="dash-level-value" style="color:#2ec4b6; font-size:22px;">Speech Explorer 🧭</strong>
+                </p>
+                <div class="xp-progress-bar-bg">
+                    <div id="xp-progress-fill" class="xp-progress-bar-fill" style="width: 10%;"></div>
+                </div>
+				<p style="text-align: center; font-size: 14px; color: #718096;">
+                    Total Stars: <strong id="dash-xp-value">50</strong> / 100 ⭐
+                </p>
+                
+                <!-- 🚪 LOGOUT BUTTON ADDED HERE -->
+                <div style="text-align: center; margin-top: 12px;">
+                    <button onclick="handleLogout()" style="background: #e53e3e; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s;">
+                      🚪 Save & Logout
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. CORRECTION NOTEBOOK LEARNING CARDS -->
+    <div id="screen-cards" class="app-screen">
+        <div class="screen-header">
+            <button class="back-arrow-btn" onclick="switchView('screen-hub')">◀ Hub</button>
+            <h2>Your Learning Cards!</h2>
+            <div style="width:50px;"></div>
+        </div>
+        <div class="placeholder-view-body" style="flex: 1; overflow-y: auto; padding: 20px;">
+            <p style="font-size: 14px; color: #718096; margin-bottom: 16px; text-align: center; font-weight: 500;">
+                📝 Tap your cards below to review today's speech mistakes and wins!
+            </p>
+            <div id="learning-cards-log-container" class="cards-deck-stack"></div>
+        </div>
+    </div>
+
+  </div>
+
+  <!-- ==========================================================================
+       🎙️ JAVASCRIPT MASTER ENGINE (ALL INTEGRATED / NO STRINGS ATTACHED)
+       ========================================================================== -->
+  <script>
+    // 🌐 1. CLOUD GATEWAY LINK
+    const GOOGLE_API_URL = "https://script.google.com/macros/s/AKfycby7yAdJLnO03W8oSqlAGhRzkXcNV7B3RLVNyvBRVmxn9i9ecdSJtgPRCO5tUq9vuzoklg/exec";
+
+// 👩‍🏫 CUSTOM POPUP ENGINE (Replaces the ugly browser alerts)
+    window.alert = function(message) {
+      let alertDiv = document.getElementById("custom-alert-overlay");
+      
+      // If the popup box doesn't exist yet, build it!
+      if (!alertDiv) {
+        alertDiv = document.createElement("div");
+        alertDiv.id = "custom-alert-overlay";
+        alertDiv.style.cssText = "position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(43, 45, 66, 0.6); z-index:9999; display:flex; justify-content:center; align-items:center; padding:25px; box-sizing:border-box;";
+        document.querySelector('.app-container').appendChild(alertDiv);
+      }
+      
+      // Give it Madam Aina's custom branding and design
+      alertDiv.innerHTML = `
+        <div style="background:#FFFDF5; width:100%; max-width:320px; border-radius:24px; border:4px solid #2b2d42; padding:22px; text-align:center; box-shadow:0 12px 24px rgba(0,0,0,0.15); box-sizing:border-box;">
+          <h3 style="margin:0 0 14px 0; color:#ff4757; font-size:18px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:6px;">
+            👩‍🏫 Madam Aina says...
+          </h3>
+          <p style="font-size:15px; color:#2b2d42; line-height:1.5; margin-bottom:22px; font-weight:500; word-break:break-word;">
+            ${message}
+          </p>
+          <button onclick="closeCustomAlert()" style="width:100%; padding:12px; background:#2ec4b6; color:white; border:none; border-radius:14px; font-weight:bold; font-size:16px; cursor:pointer; border-bottom:4px solid #1fa396;">
+            OK
+          </button>
+        </div>
+      `;
+      alertDiv.style.display = "flex";
+    };
+
+    // Function to close the custom popup
+    function closeCustomAlert() {
+      const alertDiv = document.getElementById("custom-alert-overlay");
+      if (alertDiv) {
+        alertDiv.style.display = "none";
+      }
+    }
+    // Global Session States
+    window.currentStudentId = "";
+    window.currentXp = 0;
+    window.currentLevel = "Speech Explorer 🧭";
+    window.missionsCompleted = { food: false, quiz: false };
+    const FOOD_KEYWORDS = ['food', 'eat', 'pizza', 'burger', 'apple', 'rice', 'chicken', 'hungry', 'delicious', 'breakfast', 'lunch', 'dinner', 'fruit', 'vegetable'];
+
+    // 🔌 2. CORE FETCH UTILITY (TALKS TO SPREADSHEET BACKEND)
+    async function callBackend(action, extraData = {}) {
+      const requestPayload = { action: action, ...extraData };
+      try {
+        const response = await fetch(GOOGLE_API_URL, {
+          method: "POST",
+          body: JSON.stringify(requestPayload) 
+        });
+        const result = await response.json();
+        if (result.status === "success") {
+          return result.data; 
+        } else {
+          throw new Error(result.message);
+        }
+      } catch (networkError) {
+        console.error("🌐 Network/API Congestion Detected:", networkError);
+        triggerCongestionFallback();
+        return null;
+      }
+    }
+
+    // 📱 3. UI VIEW CONTROLLER
+	function switchView(screenId) {
+      document.querySelectorAll('.app-screen').forEach(screen => {
+        screen.classList.remove('active');
+      });
+      document.getElementById(screenId).classList.add('active');
+      
+      // 🔄 AUTO-REFRESH ENGINES
+      if (screenId === 'screen-cards') {
+        loadLearningCards();
+      }
+      if (screenId === 'screen-progress') {
+        updateProgressScreen();
+      }
+    }
+	
+	function updateProgressScreen() {
+      const xp = window.currentXp || 0;
+      const level = window.currentLevel || "Speech Explorer 🧭";
+      
+      // 1. Update text displays
+      document.getElementById("dash-level-value").innerHTML = level;
+      document.getElementById("dash-xp-value").innerText = xp;
+      
+      // 2. Calculate and slide the progress bar line dynamically
+      const maxStars = 100;
+      const percentage = Math.min((xp / maxStars) * 100, 100);
+      document.getElementById("xp-progress-fill").style.width = percentage + "%";
+      
+      // 3. Swap the dashboard rank badge based on total score
+      const badge = document.getElementById("badge-container");
+      if (xp > 10) {
+        badge.innerText = "🗣️";
+      } else {
+        badge.innerText = "🧭";
+      }
+    }
+
+    function exitChatRoom() {
+      switchView('screen-hub');
+    }
+
+    // 🚀 4. ACCOUNT LOGIN SUBMIT ENGINE
+    function handleLoginTransition() {
+      const input = document.getElementById('student-name-input');
+      if (!input) return;
+      const name = input.value.trim().toLowerCase();
+      if(name === "") {
+        alert("Please enter your name first!");
+        return;
+      }
+      
+      window.currentStudentId = name;
+      
+      callBackend("getStudentData", { name: name })
+        .then(studentData => {
+          if (!studentData) {
+            console.warn("⚠️ API profile offline. Initializing safe temporary session...");
+            window.currentXp = 0;
+            window.currentLevel = "Level 1 Starter";
+            alert("Welcome to L-Ai, " + name + "! Let's start your adventure!");
+            switchView('screen-hub');
+            return;
+          }
+          window.currentXp = studentData.xp || 0;
+          window.currentLevel = studentData.level || "Level 1";
+          alert("Welcome back, " + name + "! Your current XP is " + window.currentXp + " (" + window.currentLevel + ")");
+          switchView('screen-hub');
+        })
+        .catch(err => {
+          console.error("Login thread crash:", err);
+          switchView('screen-hub'); 
+        });
+    }
+
+// 🎙️ 5. SPEECH-TO-TEXT VOICE ENGINE (WHATSAPP-STYLE HOLD TO TALK)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let voiceRecognition = SpeechRecognition ? new SpeechRecognition() : null;
+    let isVoiceListening = false;
+
+    if (voiceRecognition) {
+      voiceRecognition.lang = 'en-MY'; 
+      voiceRecognition.interimResults = false;
+      voiceRecognition.maxAlternatives = 1;
+
+      voiceRecognition.onstart = function() {
+        isVoiceListening = true;
+        document.title = "🔴 Listening... | L-Ai"; 
+      };
+
+      voiceRecognition.onresult = function(event) {
+        const spokenText = event.results[0][0].transcript;
+        const chatInput = document.getElementById("chat-text-field");
+        if (chatInput) {
+          chatInput.value = spokenText;
+        } else {
+          alert("L-Ai heard: \"" + spokenText + "\"");
+        }
+      };
+
+      voiceRecognition.onerror = function(event) {
+        if (event.error === 'not-allowed') {
+          alert("🔒 Mic Blocked! Please grant microphone permissions in your browser bar.");
+        }
+        // We ignore 'no-speech' or 'aborted' errors here because letting go quickly is normal behavior
+      };
+
+      voiceRecognition.onend = function() {
+        isVoiceListening = false;
+        document.title = "L-Ai Teacher App";
+      };
+    }
+
+    // 🔥 1. Triggered the exact millisecond a finger presses DOWN on the button
+    function startVoiceBuddy(event) {
+      if (event) event.preventDefault(); // Prevents mobile from zooming or lagging
+      
+      if (!voiceRecognition) {
+        alert("❌ Your browser doesn't support voice typing.");
+        return;
+      }
+      
+      if (!isVoiceListening) {
+        try {
+          voiceRecognition.start();
+        } catch (err) {
+          // Safeguard in case it's already spinning up
+        }
+      }
+    }
+
+    // 🛑 2. Triggered the exact millisecond a finger lifts UP off the button
+    function stopVoiceBuddy(event) {
+      if (event) event.preventDefault();
+      
+      if (voiceRecognition && isVoiceListening) {
+        voiceRecognition.stop();
+      }
+    }
+
+ // 🧠 6. MAIN CHAT SYSTEM FOR SUBMITTING SPEECH DATA TO GEMINI
+    function processTextChatSubmit() {
+      const inputField = document.getElementById('chat-text-field');
+      const userText = inputField.value.trim();
+      if (!userText) return;
+
+      const chatContainer = document.getElementById('chat-messages-container');
+      const studentHtml = `<div style="display: flex; flex-direction: column; align-items: flex-end; margin-bottom: 15px; width: 100+%;"><div class="chat-bubble bubble-student">${userText}</div></div>`;
+      
+      chatContainer.innerHTML += studentHtml;
+      inputField.value = "";
+      
+      callBackend("saveChatLog", { studentId: window.currentStudentId, htmlContent: studentHtml });
+      
+      const typingId = "typing-" + Date.now();
+      chatContainer.innerHTML += `<div id="${typingId}" class="chat-bubble bubble-buddy">Typing... ✍️</div>`;
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      callBackend("askYourAiBuddy", { userText: userText })
+        .then(aiData => {
+          const typingIndicator = document.getElementById(typingId);
+          if (typingIndicator) typingIndicator.remove();
+          if (!aiData) return;
+
+          let buddyHtml = `<div class="chat-bubble bubble-buddy">${aiData.chatReply}</div>`;
+          
+          // 📊 REWARD & CORRECTION ENGINE
+          if (aiData.isGrammarCorrect === false && aiData.learningTip) {
+            buddyHtml += `<div class="lai-tip-box"><h4>💡 L-Ai Tip!</h4><p>Instead of "<i>${aiData.mistakeFound}</i>", try this:<br><b>${aiData.learningTip}</b></p></div>`;
+            callBackend("saveLearningCard", { 
+              studentId: window.currentStudentId, 
+              mistake: aiData.mistakeFound, 
+              tip: aiData.learningTip 
+            });
+          } else {
+            buddyHtml += `
+              <div style="background: #f0fff4; border: 2px solid #c6f6d5; color: #22543d; border-radius: 14px; padding: 8px 12px; font-size: 13px; margin: 4px 0 8px 0; width: max-content; font-weight: 600; display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                ✨ Perfect Grammar! +5 Stars ⭐
+              </div>`;
+            saveProgressToDB(5);
+          }
+          
+          chatContainer.innerHTML += buddyHtml;
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+          speakText(aiData.chatReply);
+          
+          callBackend("saveChatLog", { studentId: window.currentStudentId, htmlContent: buddyHtml });
+        })
+        .catch(err => {
+          const typingIndicator = document.getElementById(typingId);
+          if (typingIndicator) typingIndicator.remove();
+        });
+    }
+
+    // 🔊 7. TEXT-TO-SPEECH AUDIO SYNTHESIS
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = function() { window.speechSynthesis.getVoices(); };
+    }
+
+    function speakText(text) {
+      try {
+        if (!('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel(); 
+        
+        let cleanText = text || "";
+        cleanText = cleanText.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, "");
+
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        const voices = window.speechSynthesis.getVoices();
+        
+        if (voices && voices.length > 0) {
+          let kidVoice = voices.find(voice => {
+            if (!voice || !voice.lang || !voice.name) return false;
+            const nameLower = voice.name.toLowerCase();
+            return voice.lang.includes('en') && (nameLower.includes('google us english') || nameLower.includes('samantha') || nameLower.includes('aria'));
+          });
+          if (kidVoice) utterance.voice = kidVoice;
+        }
+
+        utterance.lang = 'en-US'; 
+        utterance.rate = 1.0;    
+        utterance.pitch = 1.30;  
+
+        window.speechSynthesis.speak(utterance);
+      } catch (speechError) {
+        console.error("Voice engine skipped a beat:", speechError);
+      }
+    }
+
+    // 💾 8. PROGRESS SHEET INTEGRATION CONTROLS
+function saveProgressToDB(xpToAdd) {
+  if (!window.currentStudentId) return;
+  window.currentXp = (window.currentXp || 0) + xpToAdd;
+  
+  // 🏆 Multi-tier leveling system (Every 100 XP)
+  if (window.currentXp >= 300) {
+    window.currentLevel = "Language Master 👑";
+  } else if (window.currentXp >= 200) {
+    window.currentLevel = "Fluent Speaker 🚀";
+  } else if (window.currentXp >= 100) {
+    window.currentLevel = "Conversationalist 🗣️";
+  } else {
+    window.currentLevel = "Speech Explorer 🧭";
+  }
+  
+  callBackend("saveStudentData", { 
+    studentId: window.currentStudentId, 
+    xp: window.currentXp, 
+    level: window.currentLevel 
+  });
+}
+
+function loadLearningCards() {
+      const container = document.getElementById('learning-cards-log-container');
+      if (!container) return;
+      container.innerHTML = "<p style='text-align:center; color:#718096; margin-top:20px;'>Loading your cards from the spreadsheet... ⏳</p>"; 
+      
+      // 🚀 UPGRADED TO THE CLOUD HIGHWAY
+      callBackend("getLearningCards", { studentId: window.currentStudentId })
+        .then(cards => {
+          container.innerHTML = "";
+          if (!cards || cards.length === 0) {
+            container.innerHTML = "<p style='text-align:center; color:#718096; margin-top:20px;'>No cards yet! Keep talking with L-Ai! 💡</p>";
+            return;
+          }
+          cards.forEach(card => {
+            container.innerHTML += `
+              <div style="background: white; padding: 16px; border-radius: 16px; margin-bottom: 12px; border: 2px solid #e2e8f0;">
+                <p style="margin: 0 0 8px 0; color: #e53e3e; font-size: 15px;"><strong>❌ Mistake:</strong> ${card.mistake}</p>
+                <p style="margin: 0; color: #319795; font-size: 15px;">💡 <strong>Tip:</strong> ${card.tip}</p>
+              </div>`;
+          });
+        })
+        .catch(err => {
+          console.error("Error loading cards:", err);
+          container.innerHTML = "<p style='text-align:center; color:#ff4757; margin-top:20px;'>Error fetching cards from Google Sheet.</p>";
+        });
+    }
+    // 🎮 9. MODULE GAMES ENGINE (MODULE 1) ---
+  const module1Questions = [
+    { 
+      q: `<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOH1_F_0j7LlkStxJYrmB-OEyqTRoLEfWnU4qn4C-BkQ&s=10" style="width:160px; height:160px; border-radius:20px; object-fit:cover; margin-bottom:15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"><br>Which word describes her hair?`, 
+      options: ["black hair", "blonde hair", "red hair"], 
+      ans: "blonde hair" 
+    },
+    { 
+      q: `<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGIG_ixZQtcU3rLL3Myd2SzlU8M3b0TP342mFPg_Wx_g&s=10" style="width:160px; height:160px; border-radius:20px; object-fit:cover; margin-bottom:15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"><br>What color are his eyes?`, 
+      options: ["blue eyes", "green eyes", "brown eyes"], 
+      ans: "brown eyes" 
+    },
+    { 
+      q: `<div style="font-size:75px; margin-bottom:10px; animation: float 3s ease-in-out infinite;">🤗💖</div><br>Someone who loves to help others is very...`, 
+      options: ["kind", "ugly", "mean"], 
+      ans: "kind" 
+    },
+    { 
+      q: `<div style="font-size:75px; margin-bottom:10px;">✨🌸</div><br>A word that means beautiful or nice to look at is...`, 
+      options: ["ugly", "pretty", "sad"], 
+      ans: "pretty" 
+    },
+    {
+      q: `<div style="font-size:75px; margin-bottom:10px;">🧟‍♂️🕸️</div><br>A monster is usually very...`, 
+      options: ["pretty", "kind", "ugly"], 
+      ans: "ugly"
+    }
+  ];
+
+  let currentQuestion = 0;
+  let gameScore = 0;
+
+  function selectModuleItem(num) { 
+    if (num === 1) {
+      startWelcomeGame();
+    } else {
+      alert("Module " + num + " is locked! Finish Module 1 first. 🚀");
+    }
+  }
+
+  function startWelcomeGame() {
+    currentQuestion = 0;
+    gameScore = 0;
+    renderGameUI();
+  }
+
+  function renderGameUI() {
+    let gameDiv = document.getElementById("game-overlay");
+    if (!gameDiv) {
+      gameDiv = document.createElement("div");
+      gameDiv.id = "game-overlay";
+      gameDiv.style.cssText = "position:absolute; top:0; left:0; width:100%; height:100%; background:#FFFDF5; z-index:1000; display:flex; flex-direction:column; padding:20px; box-sizing:border-box; overflow-y:auto;";
+      
+      const container = document.querySelector('.app-container') || document.body;
+      container.appendChild(gameDiv);
+    }
+
+    if (currentQuestion >= module1Questions.length) {
+      // LINKED TO SHEET: Automatically send score to spreadsheet
+      saveProgressToDB(gameScore);
+
+      gameDiv.innerHTML = `
+        <h2 style="text-align:center; color:#2ec4b6; margin-top:60px; font-size:28px;">🎉 Module Complete!</h2>
+        <p style="text-align:center; font-size:18px; color:#718096; margin-top:10px;">You scored ${gameScore} out of ${module1Questions.length}!</p>
+        <img src="https://i.ibb.co/FkXMYq7x/Untitled-design-1-1.gif" style="width:180px; display:block; margin:30px auto;">
+        <button onclick="closeGame()" style="display:block; width:85%; margin:40px auto; padding:16px; background:#ff4757; color:white; border:none; border-radius:18px; font-weight:bold; font-size:16px; cursor:pointer; box-shadow:0 4px 6px rgba(255, 71, 87, 0.3);">Awesome!</button>
+      `;
+      return;
+    }
+
+    const qData = module1Questions[currentQuestion];
+    
+    let optionsHtml = qData.options.map(opt => 
+      `<button onclick="checkGameAnswer('${opt}')" style="display:block; width:100%; padding:18px; margin-bottom:15px; background:white; border:2px solid #e2e8f0; border-radius:16px; font-size:16px; font-weight:600; color:#2b2d42; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.02); transition: transform 0.1s;">${opt}</button>`
+    ).join('');
+
+    gameDiv.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+        <button onclick="closeGame()" style="background:none; border:none; color:#a0aec0; font-size:16px; font-weight:bold; cursor:pointer;">✖ Close</button>
+        <span style="font-weight:bold; color:#718096; background:#e2e8f0; padding:6px 12px; border-radius:12px;">Q: ${currentQuestion + 1} / ${module1Questions.length}</span>
+      </div>
+      <h3 style="margin-bottom:25px; color:#2b2d42; font-size:20px; text-align:center; line-height:1.4;">${qData.q}</h3>
+      <div style="flex:1;">
+        ${optionsHtml}
+      </div>
+    `;
+  }
+
+  function checkGameAnswer(selectedOption) {
+    const correctOption = module1Questions[currentQuestion].ans;
+    
+    if (selectedOption === correctOption) {
+      alert("✅ Correct! Awesome job!");
+      gameScore++;
+    } else {
+      alert("❌ Oops! The correct answer was: " + correctOption);
+    }
+    
+    currentQuestion++;
+    renderGameUI();
+  }
+
+  function closeGame() {
+    const gameDiv = document.getElementById("game-overlay");
+    if (gameDiv) {
+      gameDiv.remove(); 
+    }
+  }
+
+
+    // 🚨 10. NETWORK FALLBACK ROUTINES
+    function triggerCongestionFallback() {
+      const container = document.getElementById("chat-messages-container");
+      if (!container) return;
+      const fb = document.createElement("div");
+      fb.style.cssText = "background: #fffaf0; border-left: 4px solid #dd6b20; padding: 15px; margin: 10px 0; border-radius: 8px;";
+      fb.innerHTML = `<p>🤖 L-Ai's Brain is Super Warm! 🧠🔥</p><button onclick="switchView('screen-modules')">Play Module Game Now!</button>`;
+      container.appendChild(fb);
+    }
+  </script>
+</body>
+</html>
