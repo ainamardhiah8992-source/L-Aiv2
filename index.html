@@ -210,9 +210,17 @@
                 <div class="xp-progress-bar-bg">
                     <div id="xp-progress-fill" class="xp-progress-bar-fill" style="width: 10%;"></div>
                 </div>
-                <p style="text-align: center; font-size: 14px; color: #718096;">
-                    Total Stars: <strong id="dash-xp-value">50</strong> / 500 ⭐
+				<p style="text-align: center; font-size: 14px; color: #718096;">
+                    Total Stars: <strong id="dash-xp-value">50</strong> / 100 ⭐
                 </p>
+                
+                <!-- 🚪 LOGOUT BUTTON ADDED HERE -->
+                <div style="text-align: center; margin-top: 12px;">
+                    <button onclick="handleLogout()" style="background: #e53e3e; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s;">
+                      🚪 Save & Logout
+                    </button>
+                </div>
+
             </div>
         </div>
     </div>
@@ -330,7 +338,7 @@
       document.getElementById("dash-xp-value").innerText = xp;
       
       // 2. Calculate and slide the progress bar line dynamically
-      const maxStars = 500;
+      const maxStars = 100;
       const percentage = Math.min((xp / maxStars) * 100, 100);
       document.getElementById("xp-progress-fill").style.width = percentage + "%";
       
@@ -431,15 +439,14 @@
       voiceRecognition.start();
     }
 
-    // 🧠 6. MAIN CHAT SYSTEM FOR SUBMITTING SPEECH DATA TO GEMINI
- // 🧠 MAIN CHAT SYSTEM WITH REWARD ENGINE
+ // 🧠 6. MAIN CHAT SYSTEM FOR SUBMITTING SPEECH DATA TO GEMINI
     function processTextChatSubmit() {
       const inputField = document.getElementById('chat-text-field');
       const userText = inputField.value.trim();
       if (!userText) return;
 
       const chatContainer = document.getElementById('chat-messages-container');
-      const studentHtml = `<div style="display: flex; flex-direction: column; align-items: flex-end; margin-bottom: 15px; width: 100%;"><div class="chat-bubble bubble-student">${userText}</div></div>`;
+      const studentHtml = `<div style="display: flex; flex-direction: column; align-items: flex-end; margin-bottom: 15px; width: 100+%;"><div class="chat-bubble bubble-student">${userText}</div></div>`;
       
       chatContainer.innerHTML += studentHtml;
       inputField.value = "";
@@ -460,7 +467,6 @@
           
           // 📊 REWARD & CORRECTION ENGINE
           if (aiData.isGrammarCorrect === false && aiData.learningTip) {
-            // ❌ Oops! Show learning tip card
             buddyHtml += `<div class="lai-tip-box"><h4>💡 L-Ai Tip!</h4><p>Instead of "<i>${aiData.mistakeFound}</i>", try this:<br><b>${aiData.learningTip}</b></p></div>`;
             callBackend("saveLearningCard", { 
               studentId: window.currentStudentId, 
@@ -468,7 +474,6 @@
               tip: aiData.learningTip 
             });
           } else {
-            // 🎉 Perfect Grammar! Pop a reward tag and update their score card
             buddyHtml += `
               <div style="background: #f0fff4; border: 2px solid #c6f6d5; color: #22543d; border-radius: 14px; padding: 8px 12px; font-size: 13px; margin: 4px 0 8px 0; width: max-content; font-weight: 600; display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
                 ✨ Perfect Grammar! +5 Stars ⭐
@@ -526,18 +531,51 @@
 
     // 💾 8. PROGRESS SHEET INTEGRATION CONTROLS
 function saveProgressToDB(xpToAdd) {
-      if (!window.currentStudentId) return;
-      window.currentXp = (window.currentXp || 0) + xpToAdd;
-      window.currentLevel = window.currentXp > 10 ? "Conversationalist 🗣️" : "Speech Explorer 🧭";
-      
-      // 🚀 UPGRADED TO THE CLOUD HIGHWAY
-      callBackend("saveStudentData", { 
-        studentId: window.currentStudentId, 
-        xp: window.currentXp, 
-        level: window.currentLevel 
-      });
-    }
+  if (!window.currentStudentId) return;
+  window.currentXp = (window.currentXp || 0) + xpToAdd;
+  
+  // 🏆 Multi-tier leveling system (Every 100 XP)
+  if (window.currentXp >= 300) {
+    window.currentLevel = "Language Master 👑";
+  } else if (window.currentXp >= 200) {
+    window.currentLevel = "Fluent Speaker 🚀";
+  } else if (window.currentXp >= 100) {
+    window.currentLevel = "Conversationalist 🗣️";
+  } else {
+    window.currentLevel = "Speech Explorer 🧭";
+  }
+  
+  callBackend("saveStudentData", { 
+    studentId: window.currentStudentId, 
+    xp: window.currentXp, 
+    level: window.currentLevel 
+  });
+}
+function handleLogout() {
+  // 📢 Temporary test alert to make sure the button is working!
+  alert("Logout button clicked! Attempting to sync with spreadsheet...");
 
+  // If no one is logged in, just refresh to go to the login screen
+  if (!window.currentStudentId) {
+    location.reload();
+    return;
+  }
+
+  // Force one final update to the Google Sheet
+  callBackend("saveStudentData", { 
+    studentId: window.currentStudentId, 
+    xp: window.currentXp || 0, 
+    level: window.currentLevel || "Speech Explorer 🧭" 
+  })
+  .then(() => {
+    alert("Progress saved successfully! Resetting screen...");
+    location.reload(); 
+  })
+  .catch(err => {
+    alert("Could not connect to database, but logging out anyway.");
+    location.reload();
+  });
+}
 function loadLearningCards() {
       const container = document.getElementById('learning-cards-log-container');
       if (!container) return;
